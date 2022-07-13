@@ -1,0 +1,7 @@
+project: xori
+target: simple
+
+cmds:
+  - cmd: /simple
+  - cmd: /simple_no_inst @@
+    libfuzzer: false
