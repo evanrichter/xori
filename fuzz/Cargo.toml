@@ -1,0 +1,27 @@
+[package]
+name = "xori-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2021"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+
+[dependencies.xori]
+path = ".."
+
+# Prevent this from interfering with workspaces
+[workspace]
+members = ["."]
+
+[[bin]]
+name = "simple"
+path = "fuzz_targets/simple.rs"
+test = false
+doc = false
+
+[profile.release]
+debug = true

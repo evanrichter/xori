@@ -129,28 +129,14 @@ impl Header
         }
         return Ok(0);
     }
-    fn identify(&mut self, binary: &mut [u8])->BinaryType{
-    
-        let test_elf = &binary[0..7];
-        if test_elf.eq(b"\x7f\x45\x4c\x46\x02\x02\x01")
-        {
-            self.binary_type = BinaryType::ELF;
-            return BinaryType::ELF;
-        }
-        let test_pe = &binary[0..2];
-        if test_pe.eq(b"\x4D\x5A")
-        {
-            self.binary_type = BinaryType::PE;
-            return BinaryType::PE;
-        }
-        let test_macho = &binary[0..4];
-        if test_macho.eq(b"\xFE\xED\xFA\xCE")
-        {
-            self.binary_type = BinaryType::MACHO;
-            return BinaryType::MACHO;
-        }
-        self.binary_type = BinaryType::BIN;
-        return BinaryType::BIN;
+    fn identify(&mut self, binary: &mut [u8]) -> BinaryType {
+        self.binary_type = match binary {
+            &mut [0x7f, 0x45, 0x4c, 0x46, 0x02, 0x02, 0x01, ..] => BinaryType::ELF,
+            &mut [0x4d, 0x5a, ..] => BinaryType::PE,
+            &mut [0xfe, 0xed, 0xfa, 0xce, ..] => BinaryType::MACHO,
+            _ => BinaryType::BIN,
+        };
+        self.binary_type
     }
 }
 
@@ -203,7 +189,7 @@ fn disassemble_init(
         {
             // Needed for PE Lifetime
             // Handle Image Building
-            let mut new_binary = MmapMut::map_anon(_header.size_of_image as usize)
+            let mut new_binary = MmapMut::map_anon(1.max(_header.size_of_image as usize))
                 .expect("failed to map the file");
             let mut teb: Vec<u8> = Vec::new();
             let mut peb: Vec<u8> = Vec::new();
